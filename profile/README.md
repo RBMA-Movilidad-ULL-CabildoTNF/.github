@@ -8,6 +8,8 @@ Somos el equipo técnico responsable del diseño, construcción y mantenimiento 
 
 Nuestra misión es desarrollar las herramientas internas que permitan capturar, procesar, analizar y exponer los datos de movilidad, convirtiéndolos en información accionable para la gestión inteligente y sostenible del Parque Rural de Anaga.
 
+![Información del proyecto al completo](https://sites.google.com/ull.edu.es/movilidad-anaga)
+
 ---
 
 ## Nuestros Pilares Tecnológicos
