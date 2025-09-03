@@ -1,7 +1,3 @@
-Claro, aquí tienes una versión más descriptiva y detallada del README.md en español, elaborada a partir de la información y el código proporcionados.
-
-***
-
 # Repositorio ETL de Airflow para RBMA Movilidad
 
 ## 1. Visión General del Proyecto
