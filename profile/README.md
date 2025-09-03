@@ -1,120 +1,69 @@
-# Repositorio ETL de Airflow para RBMA Movilidad
+# Organización Técnica del Proyecto de Movilidad Sostenible RBMA
 
-## 1. Visión General del Proyecto
+![Anaga Banner](https://github.com/RBMA-Movilidad-ULL-CabildoTNF/.github/blob/main/profile/assets/anaga_banner.png)
 
-Este repositorio contiene las implementaciones de los pipelines de **ETL (Extracción, Transformación y Carga)** para el proyecto de **Movilidad Sostenible en la Reserva de la Biosfera del Macizo de Anaga (RBMA)**. La iniciativa, impulsada por el Cabildo de Tenerife en colaboración con la Universidad de La Laguna y con financiación de los fondos Next Generation EU, tiene como objetivo principal gestionar el flujo de más de 1.8 millones de visitantes anuales para mitigar la saturación de vehículos, reducir el impacto ambiental y mejorar la experiencia de residentes y turistas.
+## Quiénes Somos
 
-El núcleo técnico de este proyecto se basa en la instalación de una red de sensores y cámaras para monitorizar en tiempo real los patrones de movilidad. Los datos recopilados son procesados a través de los pipelines de Airflow definidos en este repositorio. El objetivo final es generar un mapa de movilidad, crear matrices origen-destino y desarrollar algoritmos que permitan a las autoridades tomar decisiones informadas para optimizar el transporte público y proponer alternativas sostenibles al vehículo privado.
+Somos el equipo técnico responsable del diseño, construcción y mantenimiento de la infraestructura digital para la **Estrategia de Movilidad Sostenible en la Reserva de la Biosfera del Macizo de Anaga (RBMA)**. Nacimos de la colaboración estratégica entre el **Cabildo de Tenerife** y la **Universidad de La Laguna (ULL)**, con el objetivo de traducir las necesidades del proyecto en soluciones tecnológicas robustas, escalables y eficientes.
 
-Este repositorio se encarga de la orquestación de todos los procesos de datos, desde la ingesta inicial hasta su almacenamiento en un **Data Lake** centralizado, listo para su posterior análisis y visualización.
+Nuestra misión es desarrollar las herramientas internas que permitan capturar, procesar, analizar y exponer los datos de movilidad, convirtiéndolos en información accionable para la gestión inteligente y sostenible del Parque Rural de Anaga.
 
-## 2. Arquitectura y Estructura del Repositorio
+---
 
-El proyecto está organizado siguiendo una estructura modular y escalable para facilitar el desarrollo, mantenimiento y la reutilización de código.
+## Nuestros Pilares Tecnológicos
 
-```
-└── airflow-rbma/
-    ├── docs/
-    │   └── release-it_guide.md
-    ├── lib/
-    │   ├── params/
-    │   │   └── default_params.py
-    │   ├── utils/
-    │   │   ├── dag_tasks/
-    │   │   │   ├── data_retrieving.py
-    │   │   │   ├── data_saving.py
-    │   │   │   ├── datalake.py
-    │   │   │   └── db_multiextract.py
-    │   │   ├── scripts/
-    │   │   │   ├── airflow/
-    │   │   │   │   └── schemas_dags_serializer.py
-    │   │   │   ├── auto_doc/
-    │   │   │   │   └── generate.py
-    │   │   │   └── local_airflow_manager.py
-    │   │   ├── basic.py
-    │   │   ├── date.py
-    │   │   ├── mail.py
-    │   │   └── params_maker_utils.py
-    │   └── airflow_loggin.py
-    ├── org_simulator/
-    │   └── bz_0010_sim_extract.py
-    ├── airflow_global_variables_DEV.json
-    ├── package-lock.json
-    └── package.json
-```
+Para alcanzar nuestros objetivos, hemos estructurado nuestro trabajo en torno a cuatro pilares tecnológicos fundamentales, cada uno materializado en un conjunto de herramientas y repositorios específicos.
 
-*   **`docs/`**: Contiene toda la documentación relevante del proyecto, incluyendo guías de despliegue, configuración de herramientas y notas sobre las versiones.
-*   **`lib/`**: Es el corazón del framework ETL. Alberga código reutilizable y módulos compartidos que son utilizados por todos los DAGs. Su objetivo es abstraer la lógica común y estandarizar el desarrollo.
-*   **`org_simulator/`**: Un ejemplo de directorio de "ámbito" o "esquema". Cada carpeta en la raíz del proyecto (como esta) agrupa DAGs relacionados con una fuente de datos o un propósito lógico específico. El fichero `bz_0010_sim_extract.py` representa un DAG de ejemplo que utiliza el simulador de datos de cámaras.
-*   **`airflow_global_variables_DEV.json`**: Fichero de configuración que contiene las variables globales de Airflow para el entorno de desarrollo (DEV).
-*   **`package.json`**: Define los metadatos del proyecto, las dependencias de Node.js para herramientas de desarrollo y los scripts para automatizar tareas como el versionado o la ejecución de utilidades.
+### 1. 🏞️ Data Lake Centralizado
 
-## 3. Componentes Principales del Framework (`lib/`)
+Es el **corazón de nuestra estrategia de datos**. Hemos diseñado y mantenemos un Data Lake centralizado que actúa como la única fuente de verdad para toda la información de movilidad.
 
-La carpeta `lib/` proporciona un conjunto de herramientas robustas para construir pipelines ETL de manera consistente.
+*   **Función**: Almacenar de forma segura y estructurada tanto los datos crudos (provenientes de sensores y cámaras) como los datos procesados y enriquecidos (matrices origen-destino, conteos, etc.).
+*   **Tecnología**: Principalmente basado en **PostgreSQL**, con un esquema de organización que distingue entre datos de origen (`org_*`), datos de destino (`dst_*`) y metadatos de operación.
+*   **Impacto**: Proporciona a los analistas, investigadores y aplicaciones una base de datos consolidada y fiable, eliminando silos de información y garantizando la calidad y consistencia de los datos.
 
-####  **Logging Centralizado (`airflow_loggin.py`)**
-Proporciona clases personalizadas (`Logger` y `ETLDebugger`) que extienden el sistema de logging de Airflow. Permite registrar mensajes con niveles de detalle configurables y con un formato estandarizado para cada etapa del proceso (Extracción, Transformación, Carga), facilitando la depuración y monitorización de los DAGs.
+### 2. ⚙️ Orquestación de ETLs con Apache Airflow
 
-#### 🏞️ **Gestión del Data Lake (`lib/utils/dag_tasks/datalake.py`)**
-Este módulo es fundamental para la interacción con el Data Lake.
-*   **`multi_saving`**: Una función clave que permite guardar un DataFrame en múltiples destinos de forma simultánea (ej. base de datos PostgreSQL, ficheros en un recurso compartido Samba, o en local). Su comportamiento se configura mediante variables de Airflow, permitiendo flexibilidad entre entornos.
-*   **`DatalakeDSTView`**: Una clase que facilita la creación y gestión de vistas en la base de datos del Data Lake, permitiendo crear "espejos" (mirroring) de tablas de origen o vistas personalizadas a partir de ficheros SQL.
-*   **`register_update`**: Registra cada actualización en una tabla de metadatos, llevando un control sobre los cambios en el número de registros de cada tabla del Data Lake.
+Es el **cerebro operativo** de nuestra plataforma. Utilizamos Apache Airflow para automatizar, programar y monitorizar todos los flujos de trabajo de datos (ETL).
 
-#### 💽 **Abstracción de Datos (`data_retrieving.py` y `data_saving.py`)**
-Estos módulos abstraen la lógica para conectarse y operar con distintas fuentes y destinos de datos (PostgreSQL, Oracle, ficheros CSV, Excel, Parquet). Proporcionan funciones simplificadas para que los DAGs no necesiten conocer los detalles de implementación de las conexiones. Incluye validadores para asegurar la integridad de los datos al escribirlos en bases de datos.
+*   **Función**: Orquestar de manera fiable los procesos de **Extracción** de datos desde las fuentes (simulador, APIs de cámaras), **Transformación** (limpieza, agregación, cálculo de métricas) y **Carga** en nuestro Data Lake.
+*   **Framework Propio**: Hemos desarrollado una librería interna (`lib/`) que estandariza la creación de DAGs, la gestión del logging, la interacción con el Data Lake y la notificación de errores, acelerando el desarrollo y minimizando la duplicación de código.
+*   **Impacto**: Garantiza que los datos se procesen de forma regular, resiliente y monitorizada, asegurando que la información en el Data Lake esté siempre actualizada y sea precisa.
 
-#### 🎛️ **Configuración de DAGs (`lib/params/default_params.py`)**
-Centraliza la configuración por defecto para todos los DAGs (`default_args`), como el propietario, el número de reintentos, o la fecha de inicio. Esto asegura consistencia y reduce código repetido en la definición de cada DAG.
+### 3. 🚗 Simulador de Movilidad
 
-## 4. Flujo de Trabajo y Herramientas
+Es nuestra **herramienta estratégica para la planificación y el análisis proactivo**. Ante la ausencia inicial de datos reales de las cámaras, hemos construido un simulador avanzado.
 
-El repositorio está equipado con herramientas que automatizan y estandarizan el ciclo de vida del desarrollo.
+*   **Función**: Generar datos sintéticos realistas sobre los patrones de movilidad en Anaga. El simulador utiliza la ubicación teórica de las cámaras y se calibra con datos del Cabildo y fuentes externas (Google, TomTom) para modelar flujos de vehículos.
+*   **Propósito**: Permite a los técnicos y gestores probar hipótesis y escenarios ("¿qué pasaría si cerramos una carretera?" o "¿cómo afectaría un nuevo parking?") antes de implementar cambios en el mundo real. También es crucial para el desarrollo y validación de nuestros pipelines ETL antes de la llegada de los datos definitivos.
+*   **Impacto**: Reduce la incertidumbre en la toma de decisiones, permite un diseño de políticas basado en evidencia y acelera el desarrollo de toda la plataforma de datos.
 
-#### ⚙️ **Gestión de la Configuración**
-El proyecto utiliza **Variables de Airflow** para gestionar la configuración de manera centralizada. El fichero `airflow_global_variables_DEV.json` sirve como plantilla para los distintos entornos. Variables como `DALAKE_DB_CONN` o `DATALAKE_MULTISAVING_OPTIONS` (conexiónes directas entre el servicio de Airflow y la instancia desplegada de Postgres -datalake- para este proyecto) permiten adaptar el comportamiento de los DAGs sin modificar el código.
+### 4. 🌐 APIs de Interfaz y Explotación
 
-#### 📦 **Versionado y Despliegue con `release-it`**
-Se utiliza `release-it` junto con el estándar de **Conventional Commits** para automatizar el proceso de creación de versiones. Cada vez que se necesita una nueva release, el siguiente comando se encarga de:
-1.  Determinar la siguiente versión semántica (major, minor, patch) basándose en los mensajes de commit.
-2.  Generar y/o actualizar el fichero `CHANGELOG.md`.
-3.  Crear un tag de Git y un commit de versión.
+Son el **puente entre nuestros datos y los usuarios finales**. Desarrollamos un conjunto de APIs que exponen de forma controlada y segura la información del Data Lake.
 
-```bash
-npm run release
-```
+*   **Función**: Servir los datos procesados a diferentes consumidores, como pueden ser:
+    *   **Dashboards de visualización** para los técnicos del Cabildo.
+    *   **Herramientas de análisis** para los investigadores de la ULL.
+    *   Potenciales **aplicaciones públicas** que informen sobre el estado del tráfico o la ocupación de aparcamientos.
+*   **Tecnología**: Basadas en estándares REST, garantizan un acceso rápido, seguro y bien documentado a los datos.
+*   **Impacto**: Democratizan el acceso a la información, permitiendo que el valor generado por el procesamiento de datos sea efectivamente utilizado por los distintos actores del proyecto para cumplir sus objetivos.
 
-#### ✍️ **Estándar de Commits con `commitlint`**
-Para garantizar un historial de commits limpio y legible, se utiliza `commitlint`. Este fuerza a que cada mensaje de commit siga la especificación de Conventional Commits (ej. `feat:`, `fix:`, `chore:`, etc.). Esto es crucial para el funcionamiento del versionado automático.
+---
 
-#### 🚀 **Scripts de Desarrollo**
-`package.json` incluye scripts útiles para el desarrollo diario:
-*   **`npm run airflow -- refresh <nombre_del_esquema>`**: Ejecuta el script `local_airflow_manager.py`, que permite "refrescar" o reserializar los DAGs de un esquema específico directamente en el scheduler de Airflow sin necesidad de reiniciarlo. Esto acelera enormemente el ciclo de desarrollo.
-*   **`npm run auto-doc`**: Un script avanzado que utiliza la **API de Gemini de Google** para analizar los commits entre dos tags de Git y generar automáticamente una propuesta de texto para la nueva sección del `CHANGELOG.md`.
+## Nuestra Arquitectura y Flujo de Datos
 
-## 5. Cómo Empezar
+Estos pilares se integran en un flujo de datos coherente:
 
-1.  **Clonar el Repositorio**:
-    ```bash
-    git clone https://github.com/RBMA-Movilidad-ULL-CabildoTNF/airflow-rbma.git
-    cd airflow-rbma
-    ```
+**Sensores/Cámaras/Simulador** → **Ingesta de Datos** (ETLs en Airflow) → **Procesamiento y Transformación** (ETLs en Airflow) → **Almacenamiento en Data Lake** → **APIs de Explotación** → **Visualización y Análisis**
 
-2.  **Instalar Dependencias de Node.js**:
-    Estas dependencias son para las herramientas de desarrollo.
-    ```bash
-    npm install
-    ```
+## Nuestros Repositorios
 
-3.  **Configurar el Entorno de Airflow**:
-    *   Asegúrate de que tu entorno de Airflow tiene acceso a las librerías Python definidas en la carpeta `lib/`.
-    *   Importa las variables desde `airflow_global_variables_DEV.json` en la sección `Admin -> Variables` de la UI de Airflow y ajústalas según tu entorno.
+Esta organización de GitHub alberga los repositorios de cada uno de los componentes mencionados, siguiendo una política de "un repositorio por producto" para mantener el código desacoplado y especializado.
 
-4.  **Desarrollar un Nuevo DAG**:
-    *   Crea una nueva carpeta en la raíz para agrupar tus DAGs si pertenecen a un nuevo ámbito.
-    *   Dentro de tu DAG, importa los módulos necesarios de la carpeta `lib/` para reutilizar la lógica de logging, extracción y carga. El DAG en `org_simulator/bz_0010_sim_extract.py` es un excelente punto de partida.
+*   [`airflow-rbma`](https://github.com/RBMA-Movilidad-ULL-CabildoTNF/airflow-rbma): Contiene todos los DAGs de Airflow y el framework ETL compartido.
+*   **`simulator` (Próximamente)**: Albergará el código fuente del simulador de movilidad.
+*   **`simulator-api` (Próximamente)**: Contendrá el desarrollo de la API de recolecta de datos simulando la API final de las cámaras.
+*   **`datalake-api` (Próximamente)**: Contendrá el desarrollo de la API de interfaz al Datalake y explotación de datos.
 
-## 6. Licencia
-
-Este proyecto está distribuido bajo la licencia **ISC**. Para más detalles, consulta el fichero `package.json`.
+Nuestro compromiso es construir una base tecnológica sólida que no solo resuelva los desafíos actuales, sino que también sea lo suficientemente flexible para adaptarse a las futuras necesidades del proyecto de movilidad sostenible en Anaga.
